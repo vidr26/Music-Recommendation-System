@@ -1,42 +1,75 @@
-Music Recommendation System 
+# Music Recommendation System
 
-Problem Definition
+Recommends the top songs for each user from their listening history, comparing popularity-based, collaborative filtering, matrix factorization, clustering and content-based approaches on the Million Song Dataset.
 
-The context: Why is this problem important to solve?
-With the ever-increasing volume of songs becoming available on the Internet,searching for songs of interest has become a tedious task in itself for users.
-Every Internet based company wants to increase customer time spent on their platform and increase company's revenue. 
-By using smart recommendation systems(one like Spotify) that can recommend songs based on users’ likes/dislikes among millions of customers and billions of songs would be Win-Win for customers and internet based companies.
+- **Notebook (code and full report):** [`VidyaVasist_Final_Report_Code_Music_Recommendation_Systems.ipynb`](VidyaVasist_Final_Report_Code_Music_Recommendation_Systems.ipynb)
+- **Milestone presentation:** [`VidyaVasist_Milestone_1_Music_Recommendation_Systems.pptx`](VidyaVasist_Milestone_1_Music_Recommendation_Systems.pptx)
 
-The objectives: What is the intended goal?
-Build a recommendation system to propose the top 10 songs for a user based on the likelihood of them listening to those songs.
-Build recommendation system to increase customer time spent on their platform and increase company's revenue.
+## Problem definition
 
-The key questions: What are the key questions that need to be answered?
-Main question is to figure out what kind of content customers are most likely to consume.
-What are the most popular songs to suggest a new user.
-Identify songs based on ratings, reviews, artists, genre, year released etc.
-Identify songs for existing users that are similar to their listening history.
-Identify users who have similar tastes in music and recommend similar songs to them.
+**Context: why is this problem important to solve?**
+With an ever-growing number of songs available online, finding songs you will like has become tedious. Streaming platforms want users to spend more time listening, which increases revenue. A recommendation system that suggests songs based on a user's likes and dislikes, across millions of users and songs, benefits both listeners and platforms.
 
-The problem formulation: What are we trying to solve using data science?
-Build recommendation system using different models.
-For new users who have not history/data, we build recommendation systems based on populatrity and recommend popular songs.
-For existing users we build recommendation system models using collaborative filtering, matrix factorization and other methods. We then compare the efficiancy of the models and choose the best one to recommend songs to users.
+**Objectives: what is the intended goal?**
+- Build a recommendation system that proposes the top 10 songs for a user, based on how likely they are to listen to them.
+- Increase the time customers spend on the platform, and with it the company's revenue.
 
-Data Dictionary
-The core data is the Taste Profile Subset released by the Echo Nest as part of the Million Song Dataset. There are two files in this dataset. The first file contains the details about the song id, titles, release, artist name, and the year of release. The second file contains the user id, song id, and the play count of users.
+**Key questions**
+- What kind of content are customers most likely to consume?
+- Which songs are most popular, to suggest to a new user?
+- Which songs are similar to an existing user's listening history?
+- Which users have similar tastes, so their songs can be recommended to each other?
 
-song_data
-song_id - A unique id given to every song
-title - Title of the song
-Release - Name of the released album
-Artist_name - Name of the artist
-year - Year of release
-count_data
-user _id - A unique id given to the user
-song_id - A unique id given to the song
-play_count - Number of times the song was played
+**Problem formulation**
+- For new users with no history, recommend popular songs (a popularity-based system that handles the cold-start problem).
+- For existing users, build models using collaborative filtering, matrix factorization and other methods, compare their performance, and choose the best one.
 
+## Data
 
-Data Source
-http://millionsongdataset.com/
+The data is the Taste Profile Subset released by the Echo Nest as part of the [Million Song Dataset](http://millionsongdataset.com/). It has two files.
+
+**song_data**
+- `song_id`: a unique id for every song
+- `title`: title of the song
+- `Release`: name of the released album
+- `Artist_name`: name of the artist
+- `year`: year of release
+
+**count_data**
+- `user_id`: a unique id for the user
+- `song_id`: a unique id for the song
+- `play_count`: number of times the user played the song
+
+After keeping users who listened to at least 90 songs and songs heard by at least 120 users, and dropping play counts above 5, the modeling data has 117,876 interactions from 3,155 users on 563 songs by 232 artists.
+
+## Evaluation setup
+
+- Train/test split: 60/40 (`random_state = 42`).
+- Models built with the [Surprise](https://surpriselib.com/) library, with hyperparameters tuned by grid-search cross-validation.
+- Metrics: RMSE on predicted play count, and precision@k, recall@k and F1@k with k = 30 and a relevance threshold of 1.5 plays.
+- **F1 is the primary measure**, because a good recommender has to avoid both missed songs the user would like (false negatives) and songs they won't (false positives).
+
+## Results
+
+| model | RMSE | precision@30 | recall@30 | F1@30 |
+|---|---|---|---|---|
+| User-user similarity (baseline) | 1.088 | 0.396 | 0.692 | 0.504 |
+| **User-user similarity (tuned)** | **1.052** | **0.413** | **0.721** | **0.525** |
+| Item-item similarity (baseline) | 1.039 | 0.307 | 0.562 | 0.397 |
+| Item-item similarity (tuned) | 1.033 | 0.408 | 0.665 | 0.506 |
+| Matrix factorization, SVD (baseline) | 1.025 | 0.410 | 0.633 | 0.498 |
+| Matrix factorization, SVD (tuned) | 1.014 | 0.415 | 0.635 | 0.502 |
+| Co-clustering (baseline) | 1.049 | 0.397 | 0.582 | 0.472 |
+| Co-clustering (tuned) | 1.065 | 0.394 | 0.566 | 0.465 |
+
+The **tuned user-user collaborative filtering model** (Pearson-baseline similarity, k = 30, min_k = 9) had the best F1, so it was chosen as the final model. Tuned SVD had the lowest RMSE, but its recall was lower.
+
+A popularity-based model handles new users who have no listening history. A content-based model (TF-IDF on song title, album and artist text, with cosine similarity) was also built to recommend songs similar to ones a user already likes.
+
+## Next steps
+
+A hybrid system that combines user-user collaborative filtering with matrix factorization or content-based recommendations would likely perform better than any single model, because it draws on several sources of signal.
+
+## Tools
+
+Python, Pandas, NumPy, scikit-learn, Surprise, NLTK, Matplotlib, Seaborn
