@@ -2,6 +2,8 @@
 
 Recommends the top songs for each user from their listening history, comparing popularity-based, collaborative filtering, matrix factorization, clustering and content-based approaches on the Million Song Dataset.
 
+Completed as part of the **Applied Data Science Program**, MIT Professional Education.
+
 - **Notebook (code and full report):** [`VidyaVasist_Final_Report_Code_Music_Recommendation_Systems.ipynb`](VidyaVasist_Final_Report_Code_Music_Recommendation_Systems.ipynb)
 - **Milestone presentation:** [`VidyaVasist_Milestone_1_Music_Recommendation_Systems.pptx`](VidyaVasist_Milestone_1_Music_Recommendation_Systems.pptx)
 
